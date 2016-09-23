@@ -105,7 +105,10 @@ class WizardDoDoc(models.TransientModel):
             'INSTALLED_MODULES': self.get_documentation_modules(),
         }
         logo_dir = 'None'
-        company = self.env.user._get_company()
+        company = False
+        company_id = self.env.user._get_company()
+        if company_id:
+            company = self.env['res.company'].browse(company_id)
         if company and company.logo:
             buffer = base64.b64decode(company.logo)
             logo_dir = os.path.join(self._build_folder, '_static', 'customer_logo.png')
