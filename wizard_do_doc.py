@@ -26,6 +26,7 @@ import os
 import shutil
 import tempfile
 import subprocess
+import base64
 
 from jinja2 import Template
 from path import path
@@ -98,11 +99,23 @@ class WizardDoDoc(models.TransientModel):
             f.write(template.render(**self.get_config_template_context()))
 
     def get_config_template_context(self):
-        return {
+        vals = {
             'PROJECT': 'Innubo',
             'VERSION': '%s.%s' % (1, 0),
             'INSTALLED_MODULES': self.get_documentation_modules(),
         }
+        logo_dir = 'None'
+        company = self.env.user._get_company()
+        if company and company.logo:
+            buffer = base64.b64decode(company.logo)
+            logo_dir = os.path.join(self._build_folder, '_static', 'customer_logo.png')
+            f = open(logo_dir, mode='w')
+            f.write(buffer)
+            f.close()
+        vals.update({
+            'CUSTOMER_LOGO': logo_dir,
+        })
+        return vals
 
     def fill_build_content(self):
         self.create_symlinks(self._doc_path)
