@@ -8,8 +8,7 @@ Help Menu
 ^^^^^^^^^
 
 A new Menu item is created in the top navigation menu bar. This is an URL action,
-opening a ``dochelp/index.html`` web page.
-An Odoo controller for HTML pages located under ths home page is also included.
+opening a ``dochelp/index.html`` web page. An Odoo controller for HTML pages located under ths home page is also included.
 
 Sphinx documentation
 ^^^^^^^^^^^^^^^^^^^^
