@@ -28,6 +28,7 @@ The documentation system uses the inheritance modular system
 from `sphinxcontrib.inheritance <https://pypi.python.org/pypi/sphinxcontrib-inheritance/>`_.
 
 This addon installs a Wizard enabling you to render the documentation. It uses 2 sources:
+
 * The **odoo-doc** repository in GitHub, containing the source files for the core modules of Odoo.
 * All rst files in the non-core installed modules that matches the pattern ``doc\<language>\*.rst``.
 
