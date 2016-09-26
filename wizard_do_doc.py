@@ -25,7 +25,8 @@ import logging
 import os
 import shutil
 import tempfile
-import subprocess
+# import subprocess
+from git import Repo
 import base64
 
 from jinja2 import Template
@@ -81,9 +82,11 @@ class WizardDoDoc(models.TransientModel):
         pass
 
     def update_odoo_doc(self):
-        src_dir = '/home/jaume.planas/customer_docs/odoodoc_doc/'
-        trg_dir = self._doc_path
-        subprocess.check_output(['rsync', '-r', '--del', src_dir, trg_dir])
+        # src_dir = '/home/jaume.planas/customer_docs/odoodoc_doc/'
+        # trg_dir = self._doc_path
+        # subprocess.check_output(['rsync', '-r', '--del', src_dir, trg_dir])
+        q = Repo.clone_from('/home/jaume.planas/gitremote', self._doc_path)
+        q.git.checkout('8.0')
 
     def get_documentation_modules(self):
         modules = self.env['ir.module.module'].search([('state', '=', 'installed')])
