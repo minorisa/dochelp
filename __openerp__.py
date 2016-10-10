@@ -20,7 +20,7 @@
 #
 ##############################################################################
 {
-    'name': 'Documentation System   ',
+    'name': 'Documentation System',
     'category': 'Help',
     'summary': 'Documentation system based in Sphinxh',
     'website': 'https://www.minorisa.net',

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<openerp>
+    <data>
+        <record id="dochelp_action" model="ir.actions.act_url">
+            <field name="name">DocHelp</field>
+            <field name="url" eval="'/dochelp/index.html'"></field>
+            <field name="target">new</field>
+        </record>
+
+        <menuitem id="dochelp_menu" name="Help"
+                  action="dochelp.dochelp_action"
+                  sequence="900"></menuitem>
+    </data>
+</openerp>

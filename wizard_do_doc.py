@@ -47,29 +47,41 @@ BUILD_FMT = [
 ]
 
 
-class WizardDoDoc(models.TransientModel):
-    _name = 'innubo.doc.wizard.doc'
+class DochelpWizardDoc(models.TransientModel):
+    _name = 'dochelp.wizard.doc'
 
     _sphinx_app = None
-    _doc_path = False
-    _doc_url = False
-    _template = False
+    _dochelp_path = False
+    _dochelp_template = False
     _build_folder = False
     _output_folder = False
-    _modules = []
 
     build_lang = fields.Selection(string="Lang", required=True, default='es',
                                   selection=BUILD_LANG)
     build_fmt = fields.Selection(string="Format", required=True, default='html',
                                  selection=BUILD_FMT)
+    odoo_server = fields.Char(string="Server URL", required=True)
+    odoo_db = fields.Char(string="Database Name", required=True)
+    odoo_user = fields.Char(string="User", required=True)
+    odoo_pwd = fields.Char(string="Password", required=True)
+
+    @api.model
+    def default_get(self, fields_list):
+        res = super(DochelpWizardDoc, self).default_get(fields_list=fields_list)
+        res2 = {
+            'odoo_server': self.env['ir.config_parameter'].get_param('web.base.url'),
+            'odoo_db': self.env.cr.dbname,
+            'odoo_user': self.env.user.login
+        }
+        res.update(res2)
+        return res
 
     @api.multi
     def do_build(self):
         self.ensure_one()
         # self.get_config_values()
-        self._doc_path = os.path.join(tempfile.mkdtemp(), 'innubo_doc')
-        self._doc_url = 'https://bitbucket.org/trytonspain/trytond-doc'
-        self._template = os.path.join(os.path.dirname(__file__), 'conf.py.template')
+        self._dochelp_path = os.path.join(tempfile.mkdtemp(), 'innubo_doc')
+        self._dochelp_template = os.path.join(os.path.dirname(__file__), 'conf.py.template')
         self._build_folder = tempfile.mkdtemp()
         self._output_folder = os.path.join(os.path.dirname(__file__), 'build', 'html')
         _logger.info(self._build_folder)
@@ -77,15 +89,17 @@ class WizardDoDoc(models.TransientModel):
         self.fill_build_content()
         self.make_doc()
 
-    def get_config_values(self):
-        # TODO ConfigParser, read paths and modules from modules.cfg
-        pass
+    # def get_config_values(self):
+    #     # TODO ConfigParser, read paths and modules from modules.cfg
+    #     a = conf
+    #     b = pepaconfig
+    #     c = a
 
     def update_odoo_doc(self):
         # src_dir = '/home/jaume.planas/customer_docs/odoodoc_doc/'
         # trg_dir = self._doc_path
         # subprocess.check_output(['rsync', '-r', '--del', src_dir, trg_dir])
-        q = Repo.clone_from('/home/jaume.planas/gitremote', self._doc_path)
+        q = Repo.clone_from('/home/jaume.planas/gitremote', self._dochelp_path)
         q.git.checkout('8.0')
 
     def get_documentation_modules(self):
@@ -95,7 +109,7 @@ class WizardDoDoc(models.TransientModel):
         return [m.name for m in graph]
 
     def build_config_file(self):
-        with open(self._template) as f:
+        with open(self._dochelp_template) as f:
             template = Template(f.read())
         config_file = os.path.join(self._build_folder, 'conf.py')
         with open(config_file, 'w') as f:
@@ -106,6 +120,10 @@ class WizardDoDoc(models.TransientModel):
             'PROJECT': 'Innubo',
             'VERSION': '%s.%s' % (1, 0),
             'INSTALLED_MODULES': self.get_documentation_modules(),
+            'ODOO_SERVER': self.odoo_server,
+            'ODOO_DB': self.odoo_db,
+            'ODOO_USER': self.odoo_user,
+            'ODOO_PWD': self.odoo_pwd
         }
         logo_dir = 'None'
         company = False
@@ -124,10 +142,10 @@ class WizardDoDoc(models.TransientModel):
         return vals
 
     def fill_build_content(self):
-        self.create_symlinks(self._doc_path)
+        self.create_symlinks(self._dochelp_path)
         for module_dir in conf.addons_paths:
             self.create_symlinks(module_dir)
-        index = os.path.join(self._doc_path, 'index.rst')
+        index = os.path.join(self._dochelp_path, 'index.rst')
         link = os.path.join(self._build_folder, 'index.rst')
         self.make_link(index, link)
         local_dir = os.path.dirname(__file__)

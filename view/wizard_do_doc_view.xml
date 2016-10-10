@@ -11,6 +11,12 @@
                             <field name="build_lang"></field>
                             <field name="build_fmt"></field>
                         </group>
+                        <group>
+                            <field name="odoo_server"></field>
+                            <field name="odoo_db"></field>
+                            <field name="odoo_user"></field>
+                            <field name="odoo_pwd"></field>
+                        </group>
                     </group>
                     <footer>
                         <button type="object" name="do_build" string="Build documentation"
@@ -22,16 +28,16 @@
         </record>
 
         <record id="dochelp_wizard_action" model="ir.actions.act_window">
-            <field name="name">DocHelp Wizard</field>
+            <field name="name">DocHelp Minorisa Wizard</field>
             <field name="res_model">dochelp.wizard.doc</field>
             <field name="view_mode">form</field>
-            <field name="view_id" ref="dochelp_wizard_view"></field>
+            <field name="view_id" ref="dochelp.dochelp_wizard_view"></field>
             <field name="target">new</field>
         </record>
 
         <menuitem id="dochelp_wizard_menu" parent="base.menu_custom"
                   sequence="99" groups="base.group_system"
-                  action="dochelp_wizard_view"
+                  action="dochelp.dochelp_wizard_action"
                   name="DocHelp Wizard"></menuitem>
 
     </data>

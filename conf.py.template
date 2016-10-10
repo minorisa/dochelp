@@ -297,7 +297,7 @@ texinfo_documents = [
 # odoo_user = 'demo1'
 # odoo_pwd = 'demo1'
 
-odoo_server = 'http://localhost:7069'
-odoo_db = 'innubo_test'
-odoo_user = 'admin'
-odoo_pwd = 'Innu515!'
+odoo_server = '{{ ODOO_SERVER }}'
+odoo_db = '{{ ODOO_DB }}'
+odoo_user = '{{ ODOO_USER }}'
+odoo_pwd = '{{ ODOO_PWD }}'
