@@ -20,15 +20,14 @@
 #
 ##############################################################################
 
+import base64
 import glob
 import logging
 import os
 import shutil
 import tempfile
-# import subprocess
-from git import Repo
-import base64
 
+from git import Repo
 from jinja2 import Template
 from path import path
 from sphinx.application import Sphinx
@@ -46,11 +45,12 @@ BUILD_FMT = [
     ('html', 'HTML')
 ]
 
+_sphinx_app = None
+
 
 class DochelpWizardDoc(models.TransientModel):
     _name = 'dochelp.wizard.doc'
 
-    _sphinx_app = None
     _dochelp_path = False
     _dochelp_template = False
     _build_folder = False
@@ -81,7 +81,8 @@ class DochelpWizardDoc(models.TransientModel):
         self.ensure_one()
         # self.get_config_values()
         self._dochelp_path = os.path.join(tempfile.mkdtemp(), 'innubo_doc')
-        self._dochelp_template = os.path.join(os.path.dirname(__file__), 'conf.py.template')
+        self._dochelp_template = os.path.join(os.path.dirname(__file__),
+                                              'conf.py.template')
         self._build_folder = tempfile.mkdtemp()
         self._output_folder = os.path.join(os.path.dirname(__file__), 'build', 'html')
         _logger.info(self._build_folder)
@@ -178,12 +179,14 @@ class DochelpWizardDoc(models.TransientModel):
             path(directory).relpathto(path(origin)).symlink(destination)
 
     def make_doc(self):
+        global _sphinx_app
         dest = self._output_folder
         doctree_dir = os.path.join(dest, '.doctrees')
         self.build_config_file()
         # We must cache sphinx instance otherwise extensions are loaded
         # multiple times and duplicated references errors are raised.
-        if self._sphinx_app is None:
-            self._sphinx_app = Sphinx(
-                self._build_folder, self._build_folder, dest, doctree_dir, 'html')
-        self._sphinx_app.build(force_all=True)
+        if _sphinx_app is None:
+            _sphinx_app = Sphinx(
+                self._build_folder, self._build_folder, dest, doctree_dir, 'html',
+                freshenv=True)
+        _sphinx_app.build(force_all=True)
