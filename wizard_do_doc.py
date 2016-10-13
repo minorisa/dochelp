@@ -187,6 +187,5 @@ class DochelpWizardDoc(models.TransientModel):
         # multiple times and duplicated references errors are raised.
         if _sphinx_app is None:
             _sphinx_app = Sphinx(
-                self._build_folder, self._build_folder, dest, doctree_dir, 'html',
-                freshenv=True)
+                self._build_folder, self._build_folder, dest, doctree_dir, 'html')
         _sphinx_app.build(force_all=True)
