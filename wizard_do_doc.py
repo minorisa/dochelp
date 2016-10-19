@@ -42,7 +42,8 @@ BUILD_LANG = [
 ]
 
 BUILD_FMT = [
-    ('html', 'HTML')
+    ('html', 'HTML'),
+    ('latex', 'LaText')
 ]
 
 _sphinx_app = None
@@ -84,7 +85,8 @@ class DochelpWizardDoc(models.TransientModel):
         self._dochelp_template = os.path.join(os.path.dirname(__file__),
                                               'conf.py.template')
         self._build_folder = tempfile.mkdtemp()
-        self._output_folder = os.path.join(os.path.dirname(__file__), 'build', 'html')
+        self._output_folder = os.path.join(os.path.dirname(__file__), 'build',
+                                           self.build_fmt)
         _logger.info(self._build_folder)
         self.update_odoo_doc()
         self.fill_build_content()
@@ -187,5 +189,5 @@ class DochelpWizardDoc(models.TransientModel):
         # multiple times and duplicated references errors are raised.
         if _sphinx_app is None:
             _sphinx_app = Sphinx(
-                self._build_folder, self._build_folder, dest, doctree_dir, 'html')
+                self._build_folder, self._build_folder, dest, doctree_dir, self.build_fmt)
         _sphinx_app.build(force_all=True)
