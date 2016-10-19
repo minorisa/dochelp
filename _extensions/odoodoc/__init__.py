@@ -14,6 +14,7 @@ from docutils import nodes
 from docutils.parsers.rst import directives
 from docutils.transforms import Transform
 from sphinx.util.compat import Directive
+from sphinx import roles
 
 import erppeek
 
@@ -248,6 +249,17 @@ def icon_role(name, rawtext, text, lineno, inliner, options={}, content=[]):
     return [node], []
 
 
+def odoomenu_role(name, rawtext, text, lineno, inliner, options={}, content=[]):
+
+    app = inliner.document.settings.env.app
+    config = app.config
+
+    module_name, menu_name = text.split('/')
+    s = get_menu_data(module_name, menu_name, False, config.odoo_lang)
+    s = s.replace('/', '  --> ')
+    return roles.menusel_role('menuselection', rawtext, s, lineno, inliner, options, content)
+
+
 def setup(app):
     app.add_config_value('odoo_server', None, 'env')
     app.add_config_value('odoo_db', None, 'env')
@@ -265,5 +277,6 @@ def setup(app):
     app.add_directive('fields', OdooModelFieldList)
 
     app.add_role('faicon', icon_role)
+    app.add_role('odoomenu', odoomenu_role)
 
     app.connect(b'builder-inited', init_transformer)

@@ -138,6 +138,12 @@ html_theme_options = {
         header#pageheader, footer#pagefooter, div.related, div.document {
             max-width: 75rem;
         }
+        .menuselection {
+            color: red;
+        }
+        .guilabel {
+            color: green;
+        }
         """,
     'cssfiles': [
         'https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css'
@@ -239,7 +245,7 @@ latex_documents = [
 
 # The name of an image file (relative to this directory) to place at the top of
 # the title page.
-latex_logo = 'customer_logo.png'
+latex_logo = '{{ CUSTOMER_LOGO }}'
 
 # For "manual" documents, if this is true, then toplevel headings are parts,
 # not chapters.
