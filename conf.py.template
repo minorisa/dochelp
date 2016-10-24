@@ -142,7 +142,19 @@ html_theme_options = {
             color: red;
         }
         .guilabel {
+            color: rgb(105, 118, 163);
+        }
+        .odoodocfield {
             color: green;
+            font-family: monospace;
+            background-color: #EFEFEF;
+            padding: 0.1em 0.4em;
+        }
+        .odoodocmodel {
+            color: brown;
+            font-family: monospace;
+            background-color: #EFEFEF;
+            padding: 0.1em 0.4em;
         }
         """,
     'cssfiles': [

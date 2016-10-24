@@ -109,7 +109,9 @@ class DochelpWizardDoc(models.TransientModel):
         modules = self.env['ir.module.module'].search([('state', '=', 'installed')])
         graph = Graph()
         graph.add_modules(self._cr, [m.name for m in modules])
-        return [m.name for m in graph]
+        mods = [m.name for m in graph]
+        mods.reverse()
+        return mods
 
     def build_config_file(self):
         with open(self._dochelp_template) as f:
@@ -183,7 +185,7 @@ class DochelpWizardDoc(models.TransientModel):
     def make_doc(self):
         global _sphinx_app
         dest = self._output_folder
-        doctree_dir = os.path.join(dest, '.doctrees')
+        doctree_dir = os.path.join(self._build_folder, '.doctrees')
         self.build_config_file()
         # We must cache sphinx instance otherwise extensions are loaded
         # multiple times and duplicated references errors are raised.

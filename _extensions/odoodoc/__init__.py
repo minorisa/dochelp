@@ -10,6 +10,7 @@ from __future__ import print_function
 """
 
 import re
+from collections import OrderedDict
 from docutils import nodes
 from docutils.parsers.rst import directives
 from docutils.transforms import Transform
@@ -105,7 +106,7 @@ class MenuDirective(Directive):
         else:
             show_name_only = False
 
-        classes = [config.odoodoc_menuclass]
+        classes = ['menuselection', config.odoodoc_menuclass]
         if 'class' in self.options:
             classes.extend(self.options['class'])
 
@@ -115,8 +116,8 @@ class MenuDirective(Directive):
         if text is None:
             return [self.state_machine.reporter.warning(
                 'Menu entry "%s" not found.' % content, line=self.lineno)]
-
-        return [nodes.literal(text=text, classes=classes)]
+        text = text.replace('/', u' \N{TRIANGULAR BULLET} ')
+        return [nodes.inline(text=text, classes=classes)]
 
 
 class OdooModelFieldList(Directive):
@@ -141,8 +142,11 @@ class OdooModelFieldList(Directive):
             fields = optfields.split(' ')
         l = [x for x in fields if
              x not in ['create_uid', 'create_date', 'write_uid', 'write_date']]
-        res = _client.execute(model_name, 'fields_get', l,
-                              context={'lang': config.odoo_lang})
+        res1 = _client.execute(model_name, 'fields_get', l,
+                               context={'lang': config.odoo_lang})
+        res = OrderedDict()
+        for a in l:
+            res[a] = res1[a]
         classes = [config.odoodoc_fieldlistclass]
         if 'class' in self.options:
             classes.extend(self.options['class'])
@@ -162,6 +166,47 @@ class OdooModelFieldList(Directive):
             # only display if there's a help text
             if v.get('help')
         ), classes=classes, format='html')]
+
+
+def get_model_data(model_name, odoo_lang):
+    global _client
+    ctx = {'lang': odoo_lang}
+    try:
+        xname = _client.IrModel.get([
+            ('model', '=', model_name)
+        ], context=ctx)
+    except:
+        xname = None
+    return xname
+
+
+class ModelDirective(Directive):
+    has_content = True
+    required_arguments = 1
+    optional_arguments = 1
+    final_argument_whitespace = False
+    option_spec = {
+        'full': directives.flag,
+        'class': directives.class_option,
+    }
+
+    def run(self):
+        config = self.state.document.settings.env.config
+        model_name = self.arguments[0]
+        # if 'full' in self.options:
+        #     show_help = True
+        # else:
+        #     show_help = False
+
+        classes = [config.odoodoc_modelclass]
+        if 'class' in self.options:
+            classes.extend(self.options['class'])
+
+        text = get_model_data(model_name, config.odoo_lang)
+        if text is None:
+            return [self.state_machine.reporter.warning(
+                'Model "%s" not found.' % model_name, line=self.lineno)]
+        return [nodes.literal(text=text, classes=classes)]
 
 
 class References(Transform):
@@ -250,14 +295,26 @@ def icon_role(name, rawtext, text, lineno, inliner, options={}, content=[]):
 
 
 def odoomenu_role(name, rawtext, text, lineno, inliner, options={}, content=[]):
-
     app = inliner.document.settings.env.app
     config = app.config
 
     module_name, menu_name = text.split('/')
     s = get_menu_data(module_name, menu_name, False, config.odoo_lang)
     s = s.replace('/', '  --> ')
-    return roles.menusel_role('menuselection', rawtext, s, lineno, inliner, options, content)
+    return roles.menusel_role('menuselection', rawtext, s, lineno, inliner, options,
+                              content)
+
+
+def odoofield_role(name, rawtext, text, lineno, inliner, options={}, content=[]):
+    app = inliner.document.settings.env.app
+    config = app.config
+
+    model_name, field_name = text.split('/')
+    s = get_field_data(model_name, field_name, False, config.odoo_lang)
+    # node = nodes.inline(rawsource=rawtext, text=s)
+    node = nodes.literal(rawsource=rawtext, text=s)
+    # node['classes'].append('guilabel')
+    return [node], []
 
 
 def setup(app):
@@ -270,13 +327,16 @@ def setup(app):
     app.add_config_value('odoodoc_pattern', re.compile(r'@(.|[^@]+)@'), 'env')
     app.add_config_value('odoodoc_menuclass', 'odoodocmenu', 'env')
     app.add_config_value('odoodoc_fieldclass', 'odoodocfield', 'env')
+    app.add_config_value('odoodoc_modelclass', 'odoodocmodel', 'env')
     app.add_config_value('odoodoc_fieldlistclass', 'odoodocfieldlist', 'env')
 
     app.add_directive('field', FieldDirective)
     app.add_directive('menu', MenuDirective)
+    app.add_directive('model', ModelDirective)
     app.add_directive('fields', OdooModelFieldList)
 
-    app.add_role('faicon', icon_role)
+    app.add_role('favicon', icon_role)
     app.add_role('odoomenu', odoomenu_role)
+    app.add_role('odoofield', odoofield_role)
 
-    app.connect(b'builder-inited', init_transformer)
+    app.connect('builder-inited', init_transformer)
