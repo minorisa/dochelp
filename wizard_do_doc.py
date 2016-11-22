@@ -38,7 +38,8 @@ from openerp.modules.graph import Graph
 _logger = logging.getLogger(__name__)
 
 BUILD_LANG = [
-    ('es', _('Spanish'))
+    ('es', _('Spanish')),
+    ('ca', _('Catalan'))
 ]
 
 BUILD_FMT = [

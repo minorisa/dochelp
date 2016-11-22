@@ -145,6 +145,7 @@ class OdooModelFieldList(Directive):
         res1 = _client.execute(model_name, 'fields_get', l,
                                context={'lang': config.odoo_lang})
         res = OrderedDict()
+        print('**************************', model_name)
         for a in l:
             res[a] = res1[a]
         classes = [config.odoodoc_fieldlistclass]
