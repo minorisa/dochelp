@@ -31,7 +31,7 @@ This addon installs a Wizard enabling you to render the documentation. It uses 2
 * The **odoo-doc** repository in GitHub, containing the source files for the core modules of Odoo.
 * All rst files in the non-core installed modules that matches the pattern ``doc\<language>\*.rst``.
 
-The non-core files should follow the inheritance guidelines specified in the ``sphinxcontrib.inheritance``.
+The non-core files should follow the inheritance guidelines specified in the ``sphinxcontrib.inheritance``. Yes.
 
 Credits
 ^^^^^^^
